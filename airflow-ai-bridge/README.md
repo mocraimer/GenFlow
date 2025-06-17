@@ -188,7 +188,7 @@ MCP Servers (External tools)
 
 ## Requirements
 
-- Python 3.9+
+- Python 3.10+
 - Apache Airflow 3.0+
 - airflow-ai-sdk 0.1.0+
 - MCP servers installed separately
