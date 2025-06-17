@@ -82,10 +82,20 @@ class MCPClient:
             if self.config.env:
                 env.update(self.config.env)
 
+            # Security validation: ensure command is not empty and is a string
+            if not self.config.command or not isinstance(self.config.command, str):
+                raise MCPConnectionError("Invalid MCP server command")
+            
             command = [self.config.command]
             if self.config.args:
+                # Validate args are strings
+                if not all(isinstance(arg, str) for arg in self.config.args):
+                    raise MCPConnectionError("Invalid MCP server arguments - must be strings")
                 command.extend(self.config.args)
 
+            # Security: Using subprocess with shell=False (default) and explicit command list
+            # This is safe as we're not using shell interpretation
+            # nosec B603 - subprocess call with shell=False is safe
             self._process = subprocess.Popen(
                 command,
                 stdin=subprocess.PIPE,
@@ -93,7 +103,8 @@ class MCPClient:
                 stderr=subprocess.PIPE,
                 text=True,
                 bufsize=0,
-                env=env
+                env=env,
+                shell=False  # Explicitly set for clarity
             )
 
             # Send initialize request

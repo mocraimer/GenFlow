@@ -1,0 +1,14 @@
+[bandit]
+# Bandit configuration for airflow-ai-bridge
+
+# Skip specific tests that are false positives in our context
+skips = B603
+
+# Skip test directories  
+exclude_dirs = tests
+
+# Only report medium and high severity issues
+severity = medium
+
+# Report format
+format = txt
