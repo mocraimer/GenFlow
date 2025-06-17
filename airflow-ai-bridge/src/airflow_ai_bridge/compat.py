@@ -73,10 +73,10 @@ except ImportError:
                     if hasattr(airflow_ai_sdk, attr):
                         obj = getattr(airflow_ai_sdk, attr)
                         if hasattr(obj, 'agent'):
-                            task = obj  # type: ignore[no-redef]
+                            task = obj
                             break
                         elif hasattr(obj, 'task'):
-                            task = getattr(obj, 'task')  # type: ignore[no-redef]
+                            task = getattr(obj, 'task')
                             break
             except ImportError:
                 pass

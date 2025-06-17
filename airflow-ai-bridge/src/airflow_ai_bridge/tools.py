@@ -161,7 +161,7 @@ class MCPToolRegistry:
                     Field(default=None, description=field_description)
                 )
         
-        return create_model(f"{mcp_tool.name}Args", **field_definitions)  # type: ignore[call-overload]
+        return create_model(f"{mcp_tool.name}Args", **field_definitions)
 
     def _json_schema_to_python_type(self, schema: Dict[str, Any]) -> Type[Any]:
         """Convert JSON schema type to Python type annotation."""
