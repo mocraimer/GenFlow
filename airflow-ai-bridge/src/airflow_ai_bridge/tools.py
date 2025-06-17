@@ -157,7 +157,7 @@ class MCPToolRegistry:
                 )
             else:
                 field_definitions[field_name] = (
-                    Optional[field_type], 
+                    Optional[field_type],  # type: ignore[misc]
                     Field(default=None, description=field_description)
                 )
         

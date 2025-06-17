@@ -85,7 +85,7 @@ def mcp_agent(
             return func(*args, **kwargs)
         
         # Apply the original airflow-ai-sdk decorator
-        return task.agent(agent=agent, **kwargs)(mcp_wrapper)  # type: ignore[union-attr, no-any-return]
+        return task.agent(agent=agent, **kwargs)(mcp_wrapper)  # type: ignore[union-attr]
     
     return decorator
 
@@ -129,7 +129,7 @@ def mcp_llm(
             )(func)
         else:
             # No MCP servers, use standard @task.llm
-            return task.llm(model=model, **kwargs)(func)  # type: ignore[union-attr, no-any-return]
+            return task.llm(model=model, **kwargs)(func)  # type: ignore[union-attr]
     
     return decorator
 
@@ -188,10 +188,10 @@ def mcp_llm_branch(
             func._mcp_servers = mcp_servers  # type: ignore
             
             # Use agent-based branching
-            return task.agent(agent=agent, **kwargs)(mcp_branch_wrapper)  # type: ignore[union-attr, no-any-return]
+            return task.agent(agent=agent, **kwargs)(mcp_branch_wrapper)  # type: ignore[union-attr]
         else:
             # No MCP servers, use standard @task.llm_branch
-            return task.llm_branch(model=model, **kwargs)(func)  # type: ignore[union-attr, no-any-return]
+            return task.llm_branch(model=model, **kwargs)(func)  # type: ignore[union-attr]
     
     return decorator
 

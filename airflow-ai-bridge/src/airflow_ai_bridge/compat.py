@@ -55,15 +55,15 @@ task: Any = None
 
 try:
     # First try: decorators module
-    from airflow_ai_sdk.decorators import task  # type: ignore[import-not-found]
+    from airflow_ai_sdk.decorators import task  # type: ignore[import-not-found,no-redef]
 except ImportError:
     try:
         # Second try: direct import
-        from airflow_ai_sdk import task  # type: ignore[import-not-found]
+        from airflow_ai_sdk import task  # type: ignore[import-not-found,no-redef]
     except ImportError:
         try:
             # Third try: operators module
-            from airflow_ai_sdk.operators import task  # type: ignore[import-not-found]
+            from airflow_ai_sdk.operators import task  # type: ignore[import-not-found,no-redef]
         except ImportError:
             try:
                 # Fourth try: maybe it's in a different structure
@@ -73,10 +73,10 @@ except ImportError:
                     if hasattr(airflow_ai_sdk, attr):
                         obj = getattr(airflow_ai_sdk, attr)
                         if hasattr(obj, 'agent'):
-                            task = obj
+                            task = obj  # type: ignore[no-redef]
                             break
                         elif hasattr(obj, 'task'):
-                            task = getattr(obj, 'task')
+                            task = getattr(obj, 'task')  # type: ignore[no-redef]
                             break
             except ImportError:
                 pass
