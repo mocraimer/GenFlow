@@ -7,7 +7,7 @@ MCP server capabilities available to airflow-ai-sdk agents.
 
 import asyncio
 import logging
-from typing import Any, Callable, Dict, List, Optional, Type, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Type, Tuple, get_type_hints
 from functools import wraps
 
 from pydantic import BaseModel, Field, create_model
@@ -32,7 +32,7 @@ class MCPToolRegistry:
     converting them into Pydantic AI compatible tool functions.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._pool = MCPConnectionPool()
         self._registered_tools: Dict[str, MCPTool] = {}
         self._tool_clients: Dict[str, str] = {}  # tool_name -> server_command mapping
@@ -92,7 +92,7 @@ class MCPToolRegistry:
         argument_model = self._create_argument_model(mcp_tool)
         
         # Create the tool function
-        async def mcp_tool_function(**kwargs) -> str:
+        async def mcp_tool_function(**kwargs: Any) -> str:
             """Dynamically created MCP tool function."""
             try:
                 # Validate arguments using the generated model
@@ -123,7 +123,7 @@ class MCPToolRegistry:
         mcp_tool_function.__doc__ = mcp_tool.description
         
         # Register with Pydantic AI agent
-        agent.tool(mcp_tool_function)
+        agent.tool(mcp_tool_function)  # type: ignore[arg-type]
         
         logger.debug(f"Registered MCP tool: {tool_name}")
 
@@ -144,7 +144,7 @@ class MCPToolRegistry:
         required_fields = set(schema.get("required", []))
         
         # Convert JSON schema properties to Pydantic field definitions
-        field_definitions = {}
+        field_definitions: Dict[str, Tuple[Type[Any], Any]] = {}
         
         for field_name, field_schema in properties.items():
             field_type = self._json_schema_to_python_type(field_schema)
@@ -161,9 +161,9 @@ class MCPToolRegistry:
                     Field(default=None, description=field_description)
                 )
         
-        return create_model(f"{mcp_tool.name}Args", **field_definitions)
+        return create_model(f"{mcp_tool.name}Args", **field_definitions)  # type: ignore[call-overload]
 
-    def _json_schema_to_python_type(self, schema: Dict[str, Any]) -> Type:
+    def _json_schema_to_python_type(self, schema: Dict[str, Any]) -> Type[Any]:
         """Convert JSON schema type to Python type annotation."""
         schema_type = schema.get("type", "string")
         
@@ -201,7 +201,7 @@ class MCPToolRegistry:
 
 
 # Global registry instance
-_tool_registry = MCPToolRegistry()
+_tool_registry: MCPToolRegistry = MCPToolRegistry()
 
 
 async def register_mcp_tools(agent: Agent, mcp_servers: List[Dict[str, Any]]) -> None:

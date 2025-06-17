@@ -8,7 +8,7 @@ MCP server processes and to handle concurrent access safely.
 import asyncio
 import logging
 import weakref
-from typing import Dict, Optional
+from typing import Dict, Optional, Any, AsyncGenerator
 from contextlib import asynccontextmanager
 
 from .mcp import MCPClient, MCPServerConfig
@@ -24,7 +24,7 @@ class MCPConnectionPool:
     handles connection reuse, and provides proper cleanup.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._clients: Dict[str, MCPClient] = {}
         self._locks: Dict[str, asyncio.Lock] = {}
         self._connection_counts: Dict[str, int] = {}
@@ -90,7 +90,7 @@ class MCPConnectionPool:
                         logger.debug(f"MCP client for {config.command} has no active references")
 
     @asynccontextmanager
-    async def client_context(self, config: MCPServerConfig):
+    async def client_context(self, config: MCPServerConfig) -> AsyncGenerator[MCPClient, None]:
         """
         Context manager for safely using an MCP client.
         
@@ -150,7 +150,7 @@ class MCPConnectionPool:
         
         return "|".join(key_parts)
 
-    def get_connection_info(self) -> Dict[str, Dict[str, int]]:
+    def get_connection_info(self) -> Dict[str, Any]:
         """Get information about current connections."""
         return {
             "active_connections": len(self._clients),

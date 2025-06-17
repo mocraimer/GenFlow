@@ -26,7 +26,7 @@ def mcp_agent(
     *,
     system_prompt: str = "",
     mcp_servers: Optional[List[Dict[str, Any]]] = None,
-    **kwargs
+    **kwargs: Any
 ) -> Callable[[T], T]:
     """
     Enhanced @task.agent decorator that automatically registers MCP tools.
@@ -63,7 +63,7 @@ def mcp_agent(
         
         # Create wrapper for MCP tool registration
         @wraps(func)
-        def mcp_wrapper(*args, **kwargs):
+        def mcp_wrapper(*args: Any, **kwargs: Any) -> Any:
             # This will be called during Airflow task execution
             if hasattr(func, '_mcp_servers'):
                 # Register MCP tools before executing
@@ -85,7 +85,7 @@ def mcp_agent(
             return func(*args, **kwargs)
         
         # Apply the original airflow-ai-sdk decorator
-        return task.agent(agent=agent, **kwargs)(mcp_wrapper)
+        return task.agent(agent=agent, **kwargs)(mcp_wrapper)  # type: ignore[union-attr, no-any-return]
     
     return decorator
 
@@ -94,7 +94,7 @@ def mcp_llm(
     model: Union[str, Any] = "gpt-4o",
     *,
     mcp_servers: Optional[List[Dict[str, Any]]] = None,
-    **kwargs
+    **kwargs: Any
 ) -> Callable[[T], T]:
     """
     Enhanced @task.llm decorator with MCP support.
@@ -129,7 +129,7 @@ def mcp_llm(
             )(func)
         else:
             # No MCP servers, use standard @task.llm
-            return task.llm(model=model, **kwargs)(func)
+            return task.llm(model=model, **kwargs)(func)  # type: ignore[union-attr, no-any-return]
     
     return decorator
 
@@ -138,7 +138,7 @@ def mcp_llm_branch(
     model: Union[str, Any] = "gpt-4o",
     *,
     mcp_servers: Optional[List[Dict[str, Any]]] = None,
-    **kwargs
+    **kwargs: Any
 ) -> Callable[[T], T]:
     """
     Enhanced @task.llm_branch decorator with MCP support.
@@ -168,7 +168,7 @@ def mcp_llm_branch(
             agent = Agent(model)
             
             @wraps(func)
-            def mcp_branch_wrapper(*args, **kwargs):
+            def mcp_branch_wrapper(*args: Any, **kwargs: Any) -> Any:
                 # Register MCP tools
                 if hasattr(func, '_mcp_servers'):
                     try:
@@ -188,10 +188,10 @@ def mcp_llm_branch(
             func._mcp_servers = mcp_servers  # type: ignore
             
             # Use agent-based branching
-            return task.agent(agent=agent, **kwargs)(mcp_branch_wrapper)
+            return task.agent(agent=agent, **kwargs)(mcp_branch_wrapper)  # type: ignore[union-attr, no-any-return]
         else:
             # No MCP servers, use standard @task.llm_branch
-            return task.llm_branch(model=model, **kwargs)(func)
+            return task.llm_branch(model=model, **kwargs)(func)  # type: ignore[union-attr, no-any-return]
     
     return decorator
 

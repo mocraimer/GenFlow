@@ -66,7 +66,7 @@ class MCPClient:
 
     def __init__(self, config: MCPServerConfig):
         self.config = config
-        self._process: Optional[subprocess.Popen] = None
+        self._process: Optional[subprocess.Popen[str]] = None
         self._tools: List[MCPTool] = []
         self._connected = False
         self._request_id = 0
@@ -259,7 +259,7 @@ class MCPClient:
             if not response_line:
                 raise MCPProtocolError("Empty response from MCP server")
 
-            response = json.loads(response_line)
+            response: Dict[str, Any] = json.loads(response_line)
             return response
 
         except asyncio.TimeoutError:
@@ -290,12 +290,12 @@ class MCPClient:
         self._request_id += 1
         return self._request_id
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "MCPClient":
         """Async context manager entry."""
         await self.connect()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Async context manager exit."""
         await self.disconnect()
 

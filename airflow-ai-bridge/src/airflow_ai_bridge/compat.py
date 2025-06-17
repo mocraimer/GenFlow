@@ -5,16 +5,18 @@ This module handles different versions and import paths of airflow-ai-sdk.
 """
 
 import warnings
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
+
+F = TypeVar('F', bound=Callable[..., Any])
 
 
 class MockTask:
     """Mock task decorator for when airflow-ai-sdk is not available."""
     
     @staticmethod
-    def agent(agent: Any = None, **kwargs) -> Callable:
+    def agent(agent: Any = None, **kwargs: Any) -> Callable[[F], F]:
         """Mock agent decorator."""
-        def decorator(func: Callable) -> Callable:
+        def decorator(func: F) -> F:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
@@ -24,9 +26,9 @@ class MockTask:
         return decorator
     
     @staticmethod
-    def llm(model: Any = None, **kwargs) -> Callable:
+    def llm(model: Any = None, **kwargs: Any) -> Callable[[F], F]:
         """Mock llm decorator."""
-        def decorator(func: Callable) -> Callable:
+        def decorator(func: F) -> F:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
@@ -36,9 +38,9 @@ class MockTask:
         return decorator
     
     @staticmethod
-    def llm_branch(model: Any = None, **kwargs) -> Callable:
+    def llm_branch(model: Any = None, **kwargs: Any) -> Callable[[F], F]:
         """Mock llm_branch decorator."""
-        def decorator(func: Callable) -> Callable:
+        def decorator(func: F) -> F:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
@@ -49,7 +51,7 @@ class MockTask:
 
 
 # Try to import task from various locations
-task = None
+task: Any = None
 
 try:
     # First try: decorators module
