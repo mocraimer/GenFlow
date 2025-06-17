@@ -19,7 +19,11 @@ This package focuses on doing one thing well: making MCP servers "just work" wit
 ## Installation
 
 ```bash
+# Basic installation
 pip install airflow-ai-bridge
+
+# With airflow-ai-sdk support (recommended)
+pip install "airflow-ai-bridge[airflow-ai-sdk]"
 ```
 
 ## Quick Start

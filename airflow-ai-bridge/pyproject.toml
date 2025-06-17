@@ -27,8 +27,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "airflow-ai-sdk>=0.1.0",
-    "apache-airflow>=3.0.0",
+    "apache-airflow>=2.0.0",  # More flexible version
     "pydantic>=2.0",
     "pydantic-ai>=0.0.15",
     "httpx>=0.25.0",
@@ -36,6 +35,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+airflow-ai-sdk = [
+    "airflow-ai-sdk>=0.1.0",
+]
+
 dev = [
     "pytest>=7.4",
     "pytest-asyncio>=0.21",

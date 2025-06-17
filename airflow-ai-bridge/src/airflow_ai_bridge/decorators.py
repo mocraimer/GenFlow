@@ -11,8 +11,8 @@ from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 from functools import wraps
 
 from pydantic_ai import Agent
-from airflow_ai_sdk import task
 
+from .compat import task
 from .tools import register_mcp_tools
 
 logger = logging.getLogger(__name__)
