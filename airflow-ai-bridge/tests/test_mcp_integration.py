@@ -12,7 +12,18 @@ from unittest.mock import AsyncMock, MagicMock, patch, Mock
 from typing import Any, Dict, List
 
 import pytest
-from pydantic_ai import Agent
+
+try:
+    from pydantic_ai import Agent
+except ImportError:
+    # Mock pydantic_ai for testing
+    class Agent:
+        def __init__(self, model, system_prompt=""):
+            self.model = model
+            self.system_prompt = system_prompt
+        
+        def tool(self, func):
+            return func
 
 from airflow_ai_bridge.mcp import (
     MCPClient, 

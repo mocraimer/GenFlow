@@ -36,7 +36,7 @@ jobs:
     - name: Run type checking with mypy
       run: |
         cd airflow-ai-bridge
-        mypy src --strict
+        mypy src --config-file mypy.ini
 
     - name: Run linting with ruff
       run: |

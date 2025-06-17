@@ -53,19 +53,19 @@ task = None
 
 try:
     # First try: decorators module
-    from airflow_ai_sdk.decorators import task
+    from airflow_ai_sdk.decorators import task  # type: ignore[import-not-found]
 except ImportError:
     try:
         # Second try: direct import
-        from airflow_ai_sdk import task
+        from airflow_ai_sdk import task  # type: ignore[import-not-found]
     except ImportError:
         try:
             # Third try: operators module
-            from airflow_ai_sdk.operators import task
+            from airflow_ai_sdk.operators import task  # type: ignore[import-not-found]
         except ImportError:
             try:
                 # Fourth try: maybe it's in a different structure
-                import airflow_ai_sdk
+                import airflow_ai_sdk  # type: ignore[import-not-found]
                 # Try to find task in the module
                 for attr in ['task', 'Task', 'decorators', 'operators']:
                     if hasattr(airflow_ai_sdk, attr):
