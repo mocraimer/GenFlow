@@ -144,7 +144,7 @@ class MCPToolRegistry:
         required_fields = set(schema.get("required", []))
         
         # Convert JSON schema properties to Pydantic field definitions
-        field_definitions: Dict[str, Tuple[Type[Any], Any]] = {}
+        field_definitions: Dict[str, Any] = {}
         
         for field_name, field_schema in properties.items():
             field_type = self._json_schema_to_python_type(field_schema)
@@ -157,7 +157,7 @@ class MCPToolRegistry:
                 )
             else:
                 field_definitions[field_name] = (
-                    Optional[field_type],  # type: ignore[misc]
+                    Optional[field_type],
                     Field(default=None, description=field_description)
                 )
         
