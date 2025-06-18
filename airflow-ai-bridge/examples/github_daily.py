@@ -6,9 +6,11 @@ to perform automated repository analysis and reporting.
 """
 
 from datetime import datetime, timedelta
+
 from airflow import DAG
-from airflow.operators.python import PythonOperator
 from airflow.operators.email import EmailOperator
+from airflow.operators.python import PythonOperator
+
 from airflow_ai_bridge import mcp_agent
 
 # DAG configuration
@@ -364,7 +366,11 @@ send_report_task = EmailOperator(
 )
 
 # Set task dependencies - run analysis tasks in parallel, then format and send report
-[analyze_health_task, triage_issues_task, review_prs_task, assess_release_task] >> format_report_task >> send_report_task
+(
+    [analyze_health_task, triage_issues_task, review_prs_task, assess_release_task]
+    >> format_report_task
+    >> send_report_task
+)
 
 
 if __name__ == "__main__":

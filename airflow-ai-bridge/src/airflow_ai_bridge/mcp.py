@@ -141,7 +141,7 @@ class MCPClient:
 
         except Exception as e:
             await self.disconnect()
-            raise MCPConnectionError(f"Failed to connect to MCP server {self.config.command}: {e}") from e
+            raise MCPConnectionError(\n                f"Failed to connect to MCP server {self.config.command}: {e}"\n            ) from e
 
     async def disconnect(self) -> None:
         """Close the connection to the MCP server."""
@@ -262,7 +262,7 @@ class MCPClient:
             response: dict[str, Any] = json.loads(response_line)
             return response
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             raise MCPProtocolError(f"MCP server request timeout ({self.config.timeout}s)") from None
         except json.JSONDecodeError as e:
             raise MCPProtocolError(f"Invalid JSON response from MCP server: {e}") from e

@@ -3,8 +3,9 @@ Pytest configuration and shared fixtures for airflow-ai-bridge tests.
 """
 
 import asyncio
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 @pytest.fixture(scope="session")

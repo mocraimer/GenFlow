@@ -6,8 +6,10 @@ to let AI write and manage Airflow DAGs automatically.
 """
 
 from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+
 from airflow_ai_bridge import mcp_agent
 
 # DAG configuration
@@ -33,7 +35,8 @@ dag = DAG(
 
 @mcp_agent(
     model="gpt-4o",
-    system_prompt="""You are a DAG generation assistant that creates Airflow DAGs based on requirements.
+    system_prompt="""You are a DAG generation assistant that creates Airflow DAGs based on
+requirements.
     
     You have access to the filesystem and can:
     1. Read existing DAG files to understand patterns

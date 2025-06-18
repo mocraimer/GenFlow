@@ -7,9 +7,7 @@ and integration with Pydantic AI agents.
 
 import asyncio
 import json
-import subprocess
-from unittest.mock import AsyncMock, MagicMock, patch, Mock
-from typing import Any, Dict, List
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -25,17 +23,16 @@ except ImportError:
         def tool(self, func):
             return func
 
-from airflow_ai_bridge.mcp import (
-    MCPClient, 
-    MCPServerConfig, 
-    MCPTool, 
-    MCPError, 
-    MCPConnectionError, 
-    MCPProtocolError
-)
-from airflow_ai_bridge.tools import MCPToolRegistry, register_mcp_tools
-from airflow_ai_bridge.pool import MCPConnectionPool
 from airflow_ai_bridge.decorators import mcp_agent
+from airflow_ai_bridge.mcp import (
+    MCPClient,
+    MCPConnectionError,
+    MCPProtocolError,
+    MCPServerConfig,
+    MCPTool,
+)
+from airflow_ai_bridge.pool import MCPConnectionPool
+from airflow_ai_bridge.tools import MCPToolRegistry, register_mcp_tools
 
 
 class TestMCPClient:
@@ -301,16 +298,16 @@ class TestMCPToolRegistry:
         assert instance.optional_param == 42
         
         # Test model validation
-        with pytest.raises(Exception):  # Should fail without required param
+        with pytest.raises(ValueError):  # Should fail without required param
             model_class(optional_param=42)
 
     def test_json_schema_to_python_type(self, registry):
         """Test JSON schema type conversion."""
-        assert registry._json_schema_to_python_type({"type": "string"}) == str
-        assert registry._json_schema_to_python_type({"type": "integer"}) == int
-        assert registry._json_schema_to_python_type({"type": "number"}) == float
-        assert registry._json_schema_to_python_type({"type": "boolean"}) == bool
-        assert registry._json_schema_to_python_type({"type": "unknown"}) == str  # Default
+        assert registry._json_schema_to_python_type({"type": "string"}) is str
+        assert registry._json_schema_to_python_type({"type": "integer"}) is int
+        assert registry._json_schema_to_python_type({"type": "number"}) is float
+        assert registry._json_schema_to_python_type({"type": "boolean"}) is bool
+        assert registry._json_schema_to_python_type({"type": "unknown"}) is str  # Default
 
     def test_dict_to_server_config(self, registry):
         """Test conversion from dict to MCPServerConfig."""

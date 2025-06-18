@@ -6,8 +6,10 @@ a complex workflow involving GitHub, Slack, Calendar, and filesystem operations.
 """
 
 from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+
 from airflow_ai_bridge import mcp_agent
 
 # DAG configuration
@@ -33,7 +35,8 @@ dag = DAG(
 
 @mcp_agent(
     model="gpt-4o",
-    system_prompt="""You are a release coordination assistant that manages complex release processes.
+    system_prompt="""You are a release coordination assistant that manages complex release
+processes.
     
     You have access to multiple tools:
     - GitHub: Repository management, releases, issues
@@ -123,7 +126,8 @@ def initiate_release_process(release_version: str, target_date: str) -> str:
 
 @mcp_agent(
     model="gpt-4o",
-    system_prompt="""You are a release quality assurance coordinator that manages testing and validation.
+    system_prompt="""You are a release quality assurance coordinator that manages testing and
+validation.
     
     Focus on ensuring quality gates are met before release through coordination of tools.
     """,
@@ -202,7 +206,8 @@ def coordinate_quality_gates(release_version: str) -> str:
 
 @mcp_agent(
     model="gpt-4o",
-    system_prompt="""You are a release deployment coordinator that manages the actual release process.
+    system_prompt="""You are a release deployment coordinator that manages the actual release
+process.
     
     Handle deployment coordination, monitoring, and communication across all channels.
     """,
