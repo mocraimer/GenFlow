@@ -141,7 +141,9 @@ class MCPClient:
 
         except Exception as e:
             await self.disconnect()
-            raise MCPConnectionError(\n                f"Failed to connect to MCP server {self.config.command}: {e}"\n            ) from e
+            raise MCPConnectionError(
+                f"Failed to connect to MCP server {self.config.command}: {e}"
+            ) from e
 
     async def disconnect(self) -> None:
         """Close the connection to the MCP server."""
