@@ -15,22 +15,22 @@ from airflow_ai_bridge import mcp_agent
 
 # DAG configuration
 default_args = {
-    'owner': 'airflow-ai-bridge',
-    'depends_on_past': False,
-    'start_date': datetime(2024, 1, 1),
-    'email_on_failure': True,
-    'email_on_retry': False,
-    'retries': 2,
-    'retry_delay': timedelta(minutes=10),
+    "owner": "airflow-ai-bridge",
+    "depends_on_past": False,
+    "start_date": datetime(2024, 1, 1),
+    "email_on_failure": True,
+    "email_on_retry": False,
+    "retries": 2,
+    "retry_delay": timedelta(minutes=10),
 }
 
 dag = DAG(
-    'github_daily_analysis',
+    "github_daily_analysis",
     default_args=default_args,
-    description='Daily GitHub repository analysis and reporting',
-    schedule_interval='0 8 * * *',  # Daily at 8 AM
+    description="Daily GitHub repository analysis and reporting",
+    schedule_interval="0 8 * * *",  # Daily at 8 AM
     catchup=False,
-    tags=['github', 'mcp', 'analysis', 'daily'],
+    tags=["github", "mcp", "analysis", "daily"],
 )
 
 
@@ -47,23 +47,25 @@ dag = DAG(
     
     Always provide actionable insights and prioritize items by importance.
     """,
-    mcp_servers=[{
-        "command": "mcp-server-github",
-        "env": {
-            "GITHUB_TOKEN": "{{ var.value.github_token }}",
-            "GITHUB_REPOSITORY": "{{ var.value.github_repository }}"
+    mcp_servers=[
+        {
+            "command": "mcp-server-github",
+            "env": {
+                "GITHUB_TOKEN": "{{ var.value.github_token }}",
+                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}",
+            },
         }
-    }]
+    ],
 )
 def analyze_repository_health(context) -> dict:
     """
     Analyze overall repository health and activity.
-    
+
     Returns:
         Dictionary with analysis results
     """
-    execution_date = context['execution_date'].strftime('%Y-%m-%d')
-    
+    execution_date = context["execution_date"].strftime("%Y-%m-%d")
+
     analysis_request = f"""
     Perform a comprehensive repository health analysis for {execution_date}:
     
@@ -91,7 +93,7 @@ def analyze_repository_health(context) -> dict:
     
     Provide a structured summary with priority rankings and recommended actions.
     """
-    
+
     return analysis_request
 
 
@@ -105,18 +107,20 @@ def analyze_repository_health(context) -> dict:
     - Suggesting labels and assignees
     - Estimating complexity
     """,
-    mcp_servers=[{
-        "command": "mcp-server-github",
-        "env": {
-            "GITHUB_TOKEN": "{{ var.value.github_token }}",
-            "GITHUB_REPOSITORY": "{{ var.value.github_repository }}"
+    mcp_servers=[
+        {
+            "command": "mcp-server-github",
+            "env": {
+                "GITHUB_TOKEN": "{{ var.value.github_token }}",
+                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}",
+            },
         }
-    }]
+    ],
 )
 def triage_new_issues(context) -> dict:
     """
     Triage and categorize new issues from the last 24 hours.
-    
+
     Returns:
         Dictionary with triage results
     """
@@ -150,7 +154,7 @@ def triage_new_issues(context) -> dict:
 
 
 @mcp_agent(
-    model="gpt-4o", 
+    model="gpt-4o",
     system_prompt="""You are a code review assistant that analyzes pull requests.
     
     Focus on:
@@ -159,18 +163,20 @@ def triage_new_issues(context) -> dict:
     - Performance implications
     - Testing coverage
     """,
-    mcp_servers=[{
-        "command": "mcp-server-github",
-        "env": {
-            "GITHUB_TOKEN": "{{ var.value.github_token }}",
-            "GITHUB_REPOSITORY": "{{ var.value.github_repository }}"
+    mcp_servers=[
+        {
+            "command": "mcp-server-github",
+            "env": {
+                "GITHUB_TOKEN": "{{ var.value.github_token }}",
+                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}",
+            },
         }
-    }]
+    ],
 )
 def review_pull_requests(context) -> dict:
     """
     Review open pull requests and provide insights.
-    
+
     Returns:
         Dictionary with PR review results
     """
@@ -212,18 +218,20 @@ def review_pull_requests(context) -> dict:
 @mcp_agent(
     model="gpt-4o",
     system_prompt="You are a release planning assistant that helps coordinate releases.",
-    mcp_servers=[{
-        "command": "mcp-server-github",
-        "env": {
-            "GITHUB_TOKEN": "{{ var.value.github_token }}",
-            "GITHUB_REPOSITORY": "{{ var.value.github_repository }}"
+    mcp_servers=[
+        {
+            "command": "mcp-server-github",
+            "env": {
+                "GITHUB_TOKEN": "{{ var.value.github_token }}",
+                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}",
+            },
         }
-    }]
+    ],
 )
 def assess_release_readiness(context) -> dict:
     """
     Assess readiness for next release.
-    
+
     Returns:
         Dictionary with release assessment
     """
@@ -264,20 +272,20 @@ def assess_release_readiness(context) -> dict:
 def format_daily_report(**context) -> str:
     """
     Format the daily GitHub analysis report.
-    
+
     Returns:
         Formatted HTML report
     """
     # Get results from previous tasks
-    ti = context['ti']
-    
-    repo_health = ti.xcom_pull(task_ids='analyze_repository_health')
-    issue_triage = ti.xcom_pull(task_ids='triage_new_issues')
-    pr_review = ti.xcom_pull(task_ids='review_pull_requests')
-    release_status = ti.xcom_pull(task_ids='assess_release_readiness')
-    
-    execution_date = context['execution_date'].strftime('%Y-%m-%d')
-    
+    ti = context["ti"]
+
+    repo_health = ti.xcom_pull(task_ids="analyze_repository_health")
+    issue_triage = ti.xcom_pull(task_ids="triage_new_issues")
+    pr_review = ti.xcom_pull(task_ids="review_pull_requests")
+    release_status = ti.xcom_pull(task_ids="assess_release_readiness")
+
+    execution_date = context["execution_date"].strftime("%Y-%m-%d")
+
     html_report = f"""
     <html>
     <head>
@@ -322,45 +330,45 @@ def format_daily_report(**context) -> str:
     </body>
     </html>
     """
-    
+
     return html_report
 
 
 # Task definitions
 analyze_health_task = PythonOperator(
-    task_id='analyze_repository_health',
+    task_id="analyze_repository_health",
     python_callable=analyze_repository_health,
     dag=dag,
 )
 
 triage_issues_task = PythonOperator(
-    task_id='triage_new_issues',
+    task_id="triage_new_issues",
     python_callable=triage_new_issues,
     dag=dag,
 )
 
 review_prs_task = PythonOperator(
-    task_id='review_pull_requests', 
+    task_id="review_pull_requests",
     python_callable=review_pull_requests,
     dag=dag,
 )
 
 assess_release_task = PythonOperator(
-    task_id='assess_release_readiness',
+    task_id="assess_release_readiness",
     python_callable=assess_release_readiness,
     dag=dag,
 )
 
 format_report_task = PythonOperator(
-    task_id='format_daily_report',
+    task_id="format_daily_report",
     python_callable=format_daily_report,
     dag=dag,
 )
 
 send_report_task = EmailOperator(
-    task_id='send_daily_report',
-    to=['{{ var.value.github_report_recipients }}'],
-    subject='GitHub Daily Report - {{ ds }}',
+    task_id="send_daily_report",
+    to=["{{ var.value.github_report_recipients }}"],
+    subject="GitHub Daily Report - {{ ds }}",
     html_content='{{ ti.xcom_pull(task_ids="format_daily_report") }}',
     dag=dag,
 )
@@ -376,12 +384,10 @@ send_report_task = EmailOperator(
 if __name__ == "__main__":
     # Test the DAG locally
     print("Testing GitHub daily analysis...")
-    
+
     # Mock context for testing
-    test_context = {
-        'execution_date': datetime(2024, 1, 15, 8, 0, 0)
-    }
-    
+    test_context = {"execution_date": datetime(2024, 1, 15, 8, 0, 0)}
+
     # This would require actual GitHub credentials and repository access
     print("Note: This example requires GitHub token and repository configuration")
     print("Set the following Airflow variables:")

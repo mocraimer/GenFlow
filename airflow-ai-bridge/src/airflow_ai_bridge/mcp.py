@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class MCPTransportType(Enum):
     """Supported MCP transport types."""
+
     STDIO = "stdio"
     HTTP = "http"  # Future support
 
@@ -26,6 +27,7 @@ class MCPTransportType(Enum):
 @dataclass
 class MCPTool:
     """Represents an MCP tool definition."""
+
     name: str
     description: str
     input_schema: dict[str, Any]
@@ -34,6 +36,7 @@ class MCPTool:
 @dataclass
 class MCPServerConfig:
     """Configuration for an MCP server connection."""
+
     command: str
     args: list[str] | None = None
     env: dict[str, str] | None = None
@@ -43,23 +46,26 @@ class MCPServerConfig:
 
 class MCPError(Exception):
     """Base exception for MCP-related errors."""
+
     pass
 
 
 class MCPConnectionError(MCPError):
     """Raised when MCP server connection fails."""
+
     pass
 
 
 class MCPProtocolError(MCPError):
     """Raised when MCP protocol communication fails."""
+
     pass
 
 
 class MCPClient:
     """
     MCP client for communicating with MCP servers via stdio.
-    
+
     Handles the MCP protocol for tool discovery and execution,
     designed to work seamlessly with Pydantic AI agents.
     """
@@ -85,12 +91,14 @@ class MCPClient:
             # Security validation: ensure command is not empty and is a string
             if not self.config.command or not isinstance(self.config.command, str):
                 raise MCPConnectionError("Invalid MCP server command")
-            
+
             command = [self.config.command]
             if self.config.args:
                 # Validate args are strings
                 if not all(isinstance(arg, str) for arg in self.config.args):
-                    raise MCPConnectionError("Invalid MCP server arguments - must be strings")
+                    raise MCPConnectionError(
+                        "Invalid MCP server arguments - must be strings"
+                    )
                 command.extend(self.config.args)
 
             # Security: Using subprocess with shell=False (default) and explicit command list
@@ -104,7 +112,7 @@ class MCPClient:
                 text=True,
                 bufsize=0,
                 env=env,
-                shell=False  # Explicitly set for clarity
+                shell=False,  # Explicitly set for clarity
             )
 
             # Send initialize request
@@ -114,25 +122,22 @@ class MCPClient:
                 "method": "initialize",
                 "params": {
                     "protocolVersion": "2024-11-05",
-                    "capabilities": {
-                        "tools": {}
-                    },
-                    "clientInfo": {
-                        "name": "airflow-ai-bridge",
-                        "version": "0.1.0"
-                    }
-                }
+                    "capabilities": {"tools": {}},
+                    "clientInfo": {"name": "airflow-ai-bridge", "version": "0.1.0"},
+                },
             }
 
             response = await self._send_request(initialize_request)
-            
+
             if "error" in response:
-                raise MCPConnectionError(f"MCP server initialization failed: {response['error']}")
+                raise MCPConnectionError(
+                    f"MCP server initialization failed: {response['error']}"
+                )
 
             # Send initialized notification
             initialized_notification = {
                 "jsonrpc": "2.0",
-                "method": "notifications/initialized"
+                "method": "notifications/initialized",
             }
             await self._send_notification(initialized_notification)
 
@@ -173,11 +178,11 @@ class MCPClient:
             tools_request = {
                 "jsonrpc": "2.0",
                 "id": self._next_request_id(),
-                "method": "tools/list"
+                "method": "tools/list",
             }
 
             response = await self._send_request(tools_request)
-            
+
             if "error" in response:
                 raise MCPProtocolError(f"Failed to list tools: {response['error']}")
 
@@ -186,7 +191,7 @@ class MCPClient:
                 MCPTool(
                     name=tool["name"],
                     description=tool.get("description", ""),
-                    input_schema=tool.get("inputSchema", {})
+                    input_schema=tool.get("inputSchema", {}),
                 )
                 for tool in tools_data
             ]
@@ -207,14 +212,11 @@ class MCPClient:
                 "jsonrpc": "2.0",
                 "id": self._next_request_id(),
                 "method": "tools/call",
-                "params": {
-                    "name": name,
-                    "arguments": arguments
-                }
+                "params": {"name": name, "arguments": arguments},
             }
 
             response = await self._send_request(tool_request)
-            
+
             if "error" in response:
                 error_info = response["error"]
                 raise MCPProtocolError(
@@ -222,7 +224,7 @@ class MCPClient:
                 )
 
             result = response.get("result", {})
-            
+
             # Extract content from MCP response format
             content = result.get("content", [])
             if content:
@@ -231,9 +233,9 @@ class MCPClient:
                 for item in content:
                     if item.get("type") == "text":
                         text_content.append(item.get("text", ""))
-                
+
                 return "\n".join(text_content) if text_content else result
-            
+
             return result
 
         except Exception as e:
@@ -254,8 +256,7 @@ class MCPClient:
 
             # Wait for response
             response_line = await asyncio.wait_for(
-                self._read_line(),
-                timeout=self.config.timeout
+                self._read_line(), timeout=self.config.timeout
             )
 
             if not response_line:
@@ -265,7 +266,9 @@ class MCPClient:
             return response
 
         except TimeoutError:
-            raise MCPProtocolError(f"MCP server request timeout ({self.config.timeout}s)") from None
+            raise MCPProtocolError(
+                f"MCP server request timeout ({self.config.timeout}s)"
+            ) from None
         except json.JSONDecodeError as e:
             raise MCPProtocolError(f"Invalid JSON response from MCP server: {e}") from e
 

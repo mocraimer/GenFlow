@@ -8,49 +8,55 @@ import warnings
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-F = TypeVar('F', bound=Callable[..., Any])
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 class MockTask:
     """Mock task decorator for when airflow-ai-sdk is not available."""
-    
+
     @staticmethod
     def agent(agent: Any = None, **kwargs: Any) -> Callable[[F], F]:
         """Mock agent decorator."""
+
         def decorator(func: F) -> F:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
             return func
+
         return decorator
-    
+
     @staticmethod
     def llm(model: Any = None, **kwargs: Any) -> Callable[[F], F]:
         """Mock llm decorator."""
+
         def decorator(func: F) -> F:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
             return func
+
         return decorator
-    
+
     @staticmethod
     def llm_branch(model: Any = None, **kwargs: Any) -> Callable[[F], F]:
         """Mock llm_branch decorator."""
+
         def decorator(func: F) -> F:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
             return func
+
         return decorator
 
 
@@ -72,14 +78,15 @@ except ImportError:
             try:
                 # Fourth try: maybe it's in a different structure
                 import airflow_ai_sdk
+
                 # Try to find task in the module
-                for attr in ['task', 'Task', 'decorators', 'operators']:
+                for attr in ["task", "Task", "decorators", "operators"]:
                     if hasattr(airflow_ai_sdk, attr):
                         obj = getattr(airflow_ai_sdk, attr)
-                        if hasattr(obj, 'agent'):
+                        if hasattr(obj, "agent"):
                             task = obj
                             break
-                        elif hasattr(obj, 'task'):
+                        elif hasattr(obj, "task"):
                             task = obj.task
                             break
             except ImportError:

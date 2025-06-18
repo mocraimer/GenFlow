@@ -14,22 +14,22 @@ from airflow_ai_bridge import mcp_agent
 
 # DAG configuration
 default_args = {
-    'owner': 'airflow-ai-bridge',
-    'depends_on_past': False,
-    'start_date': datetime(2024, 1, 1),
-    'email_on_failure': True,
-    'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    "owner": "airflow-ai-bridge",
+    "depends_on_past": False,
+    "start_date": datetime(2024, 1, 1),
+    "email_on_failure": True,
+    "email_on_retry": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
 }
 
 dag = DAG(
-    'multi_mcp_release_coordination',
+    "multi_mcp_release_coordination",
     default_args=default_args,
-    description='Coordinate release process using multiple MCP servers',
+    description="Coordinate release process using multiple MCP servers",
     schedule_interval=None,  # Trigger manually
     catchup=False,
-    tags=['mcp', 'release', 'coordination', 'multi-tool'],
+    tags=["mcp", "release", "coordination", "multi-tool"],
 )
 
 
@@ -51,36 +51,34 @@ processes.
             "command": "mcp-server-github",
             "env": {
                 "GITHUB_TOKEN": "{{ var.value.github_token }}",
-                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}"
-            }
+                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}",
+            },
         },
         {
             "command": "mcp-server-slack",
             "env": {
                 "SLACK_TOKEN": "{{ var.value.slack_token }}",
-                "SLACK_CHANNEL": "{{ var.value.slack_release_channel }}"
-            }
+                "SLACK_CHANNEL": "{{ var.value.slack_release_channel }}",
+            },
         },
         {
             "command": "mcp-server-google-calendar",
-            "env": {
-                "GOOGLE_CALENDAR_ID": "{{ var.value.google_calendar_id }}"
-            }
+            "env": {"GOOGLE_CALENDAR_ID": "{{ var.value.google_calendar_id }}"},
         },
         {
             "command": "mcp-server-filesystem",
-            "args": ["--root", "/opt/airflow/release-docs"]
-        }
-    ]
+            "args": ["--root", "/opt/airflow/release-docs"],
+        },
+    ],
 )
 def initiate_release_process(release_version: str, target_date: str) -> str:
     """
     Initiate the release process across all coordination channels.
-    
+
     Args:
         release_version: Version number for the release (e.g., "v1.2.0")
         target_date: Target release date (YYYY-MM-DD format)
-        
+
     Returns:
         Status of release initiation
     """
@@ -136,29 +134,29 @@ validation.
             "command": "mcp-server-github",
             "env": {
                 "GITHUB_TOKEN": "{{ var.value.github_token }}",
-                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}"
-            }
+                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}",
+            },
         },
         {
             "command": "mcp-server-slack",
             "env": {
                 "SLACK_TOKEN": "{{ var.value.slack_token }}",
-                "SLACK_CHANNEL": "{{ var.value.slack_release_channel }}"
-            }
+                "SLACK_CHANNEL": "{{ var.value.slack_release_channel }}",
+            },
         },
         {
             "command": "mcp-server-filesystem",
-            "args": ["--root", "/opt/airflow/release-docs"]
-        }
-    ]
+            "args": ["--root", "/opt/airflow/release-docs"],
+        },
+    ],
 )
 def coordinate_quality_gates(release_version: str) -> str:
     """
     Coordinate quality assurance across all systems.
-    
+
     Args:
         release_version: Version being prepared for release
-        
+
     Returns:
         Quality gate status report
     """
@@ -216,35 +214,33 @@ process.
             "command": "mcp-server-github",
             "env": {
                 "GITHUB_TOKEN": "{{ var.value.github_token }}",
-                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}"
-            }
+                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}",
+            },
         },
         {
             "command": "mcp-server-slack",
             "env": {
                 "SLACK_TOKEN": "{{ var.value.slack_token }}",
-                "SLACK_CHANNEL": "{{ var.value.slack_release_channel }}"
-            }
+                "SLACK_CHANNEL": "{{ var.value.slack_release_channel }}",
+            },
         },
         {
             "command": "mcp-server-google-calendar",
-            "env": {
-                "GOOGLE_CALENDAR_ID": "{{ var.value.google_calendar_id }}"
-            }
+            "env": {"GOOGLE_CALENDAR_ID": "{{ var.value.google_calendar_id }}"},
         },
         {
             "command": "mcp-server-filesystem",
-            "args": ["--root", "/opt/airflow/release-docs"]
-        }
-    ]
+            "args": ["--root", "/opt/airflow/release-docs"],
+        },
+    ],
 )
 def execute_release_deployment(release_version: str) -> str:
     """
     Execute the coordinated release deployment.
-    
+
     Args:
         release_version: Version being released
-        
+
     Returns:
         Deployment execution report
     """
@@ -309,35 +305,33 @@ def execute_release_deployment(release_version: str) -> str:
             "command": "mcp-server-github",
             "env": {
                 "GITHUB_TOKEN": "{{ var.value.github_token }}",
-                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}"
-            }
+                "GITHUB_REPOSITORY": "{{ var.value.github_repository }}",
+            },
         },
         {
             "command": "mcp-server-slack",
             "env": {
                 "SLACK_TOKEN": "{{ var.value.slack_token }}",
-                "SLACK_CHANNEL": "{{ var.value.slack_release_channel }}"
-            }
+                "SLACK_CHANNEL": "{{ var.value.slack_release_channel }}",
+            },
         },
         {
             "command": "mcp-server-google-calendar",
-            "env": {
-                "GOOGLE_CALENDAR_ID": "{{ var.value.google_calendar_id }}"
-            }
+            "env": {"GOOGLE_CALENDAR_ID": "{{ var.value.google_calendar_id }}"},
         },
         {
             "command": "mcp-server-filesystem",
-            "args": ["--root", "/opt/airflow/release-docs"]
-        }
-    ]
+            "args": ["--root", "/opt/airflow/release-docs"],
+        },
+    ],
 )
 def coordinate_post_release(release_version: str) -> str:
     """
     Coordinate post-release activities and monitoring.
-    
+
     Args:
         release_version: Released version
-        
+
     Returns:
         Post-release coordination report
     """
@@ -396,39 +390,33 @@ def coordinate_post_release(release_version: str) -> str:
 
 # Task definitions with dependencies
 initiate_task = PythonOperator(
-    task_id='initiate_release_process',
+    task_id="initiate_release_process",
     python_callable=initiate_release_process,
     op_kwargs={
-        'release_version': '{{ params.release_version }}',
-        'target_date': '{{ params.target_date }}'
+        "release_version": "{{ params.release_version }}",
+        "target_date": "{{ params.target_date }}",
     },
     dag=dag,
 )
 
 quality_gates_task = PythonOperator(
-    task_id='coordinate_quality_gates',
+    task_id="coordinate_quality_gates",
     python_callable=coordinate_quality_gates,
-    op_kwargs={
-        'release_version': '{{ params.release_version }}'
-    },
+    op_kwargs={"release_version": "{{ params.release_version }}"},
     dag=dag,
 )
 
 deployment_task = PythonOperator(
-    task_id='execute_release_deployment',
+    task_id="execute_release_deployment",
     python_callable=execute_release_deployment,
-    op_kwargs={
-        'release_version': '{{ params.release_version }}'
-    },
+    op_kwargs={"release_version": "{{ params.release_version }}"},
     dag=dag,
 )
 
 post_release_task = PythonOperator(
-    task_id='coordinate_post_release',
+    task_id="coordinate_post_release",
     python_callable=coordinate_post_release,
-    op_kwargs={
-        'release_version': '{{ params.release_version }}'
-    },
+    op_kwargs={"release_version": "{{ params.release_version }}"},
     dag=dag,
 )
 
@@ -437,10 +425,7 @@ initiate_task >> quality_gates_task >> deployment_task >> post_release_task
 
 
 # DAG-level parameters
-dag.params = {
-    'release_version': 'v1.0.0',
-    'target_date': '2024-02-01'
-}
+dag.params = {"release_version": "v1.0.0", "target_date": "2024-02-01"}
 
 
 if __name__ == "__main__":

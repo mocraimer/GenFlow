@@ -47,17 +47,12 @@ def sample_tool_schema():
     return {
         "type": "object",
         "properties": {
-            "text": {
-                "type": "string",
-                "description": "Input text to process"
-            },
+            "text": {"type": "string", "description": "Input text to process"},
             "options": {
-                "type": "object", 
+                "type": "object",
                 "description": "Optional configuration",
-                "properties": {
-                    "format": {"type": "string", "enum": ["json", "text"]}
-                }
-            }
+                "properties": {"format": {"type": "string", "enum": ["json", "text"]}},
+            },
         },
-        "required": ["text"]
+        "required": ["text"],
     }

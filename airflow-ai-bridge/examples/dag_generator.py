@@ -14,22 +14,22 @@ from airflow_ai_bridge import mcp_agent
 
 # DAG configuration
 default_args = {
-    'owner': 'airflow-ai-bridge',
-    'depends_on_past': False,
-    'start_date': datetime(2024, 1, 1),
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    "owner": "airflow-ai-bridge",
+    "depends_on_past": False,
+    "start_date": datetime(2024, 1, 1),
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
 }
 
 dag = DAG(
-    'ai_dag_generator',
+    "ai_dag_generator",
     default_args=default_args,
-    description='AI generates DAGs using MCP filesystem access',
+    description="AI generates DAGs using MCP filesystem access",
     schedule_interval=timedelta(days=1),
     catchup=False,
-    tags=['ai', 'mcp', 'generator'],
+    tags=["ai", "mcp", "generator"],
 )
 
 
@@ -49,19 +49,21 @@ requirements.
     - Add meaningful descriptions and tags
     - Follow Airflow best practices
     """,
-    mcp_servers=[{
-        "command": "mcp-server-filesystem",
-        "args": ["--root", "/opt/airflow/dags"],
-        "env": {"ALLOWED_EXTENSIONS": "py,sql,yaml"}
-    }]
+    mcp_servers=[
+        {
+            "command": "mcp-server-filesystem",
+            "args": ["--root", "/opt/airflow/dags"],
+            "env": {"ALLOWED_EXTENSIONS": "py,sql,yaml"},
+        }
+    ],
 )
 def generate_dag_from_requirements(requirements: str) -> str:
     """
     Generate a new DAG based on natural language requirements.
-    
+
     Args:
         requirements: Natural language description of the desired DAG
-        
+
     Returns:
         Status message about DAG generation
     """
@@ -86,15 +88,14 @@ def generate_dag_from_requirements(requirements: str) -> str:
 @mcp_agent(
     model="gpt-4o",
     system_prompt="You are a DAG analysis assistant that reviews existing DAGs for improvements.",
-    mcp_servers=[{
-        "command": "mcp-server-filesystem", 
-        "args": ["--root", "/opt/airflow/dags"]
-    }]
+    mcp_servers=[
+        {"command": "mcp-server-filesystem", "args": ["--root", "/opt/airflow/dags"]}
+    ],
 )
 def analyze_existing_dags() -> str:
     """
     Analyze existing DAGs and suggest improvements.
-    
+
     Returns:
         Analysis report with suggestions
     """
@@ -118,15 +119,14 @@ def analyze_existing_dags() -> str:
 @mcp_agent(
     model="gpt-4o",
     system_prompt="You are a DAG maintenance assistant that helps keep DAGs clean and updated.",
-    mcp_servers=[{
-        "command": "mcp-server-filesystem",
-        "args": ["--root", "/opt/airflow/dags"]
-    }]
+    mcp_servers=[
+        {"command": "mcp-server-filesystem", "args": ["--root", "/opt/airflow/dags"]}
+    ],
 )
 def cleanup_deprecated_dags() -> str:
     """
     Clean up deprecated or unused DAGs.
-    
+
     Returns:
         Cleanup report
     """
@@ -149,10 +149,10 @@ def cleanup_deprecated_dags() -> str:
 
 # Task definitions
 generate_dag_task = PythonOperator(
-    task_id='generate_dag_from_requirements',
+    task_id="generate_dag_from_requirements",
     python_callable=generate_dag_from_requirements,
     op_kwargs={
-        'requirements': """
+        "requirements": """
         Create a data pipeline DAG that:
         1. Extracts data from a PostgreSQL database
         2. Transforms the data using pandas
@@ -165,13 +165,13 @@ generate_dag_task = PythonOperator(
 )
 
 analyze_dags_task = PythonOperator(
-    task_id='analyze_existing_dags',
+    task_id="analyze_existing_dags",
     python_callable=analyze_existing_dags,
     dag=dag,
 )
 
 cleanup_task = PythonOperator(
-    task_id='cleanup_deprecated_dags',
+    task_id="cleanup_deprecated_dags",
     python_callable=cleanup_deprecated_dags,
     dag=dag,
 )
@@ -183,7 +183,7 @@ analyze_dags_task >> generate_dag_task >> cleanup_task
 if __name__ == "__main__":
     # Test the DAG locally
     print("Testing DAG generator...")
-    
+
     # This would typically be run by Airflow
     result = generate_dag_from_requirements(
         "Create a simple ETL pipeline that processes CSV files"
