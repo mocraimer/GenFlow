@@ -5,15 +5,13 @@ This module bridges MCP tools with Pydantic AI's tool system, making
 MCP server capabilities available to airflow-ai-sdk agents.
 """
 
-import asyncio
 import logging
-from typing import Any, Callable, Dict, List, Optional, Type, Tuple, get_type_hints
-from functools import wraps
+from typing import Any
 
 from pydantic import BaseModel, Field, create_model
 from pydantic_ai import Agent
 
-from .mcp import MCPClient, MCPServerConfig, MCPTool
+from .mcp import MCPServerConfig, MCPTool
 from .pool import MCPConnectionPool
 
 logger = logging.getLogger(__name__)
@@ -34,13 +32,13 @@ class MCPToolRegistry:
 
     def __init__(self) -> None:
         self._pool = MCPConnectionPool()
-        self._registered_tools: Dict[str, MCPTool] = {}
-        self._tool_clients: Dict[str, str] = {}  # tool_name -> server_command mapping
+        self._registered_tools: dict[str, MCPTool] = {}
+        self._tool_clients: dict[str, str] = {}  # tool_name -> server_command mapping
 
     async def register_mcp_tools(
         self, 
         agent: Agent, 
-        mcp_servers: List[Dict[str, Any]]
+        mcp_servers: list[dict[str, Any]]
     ) -> None:
         """
         Register MCP server tools with a Pydantic AI agent.
@@ -73,7 +71,7 @@ class MCPToolRegistry:
                 
             except Exception as e:
                 logger.error(f"Failed to register MCP server {server_config_dict}: {e}")
-                raise MCPToolError(f"MCP server registration failed: {e}")
+                raise MCPToolError(f"MCP server registration failed: {e}") from e
 
     async def _register_single_tool(
         self, 
@@ -127,7 +125,7 @@ class MCPToolRegistry:
         
         logger.debug(f"Registered MCP tool: {tool_name}")
 
-    def _create_argument_model(self, mcp_tool: MCPTool) -> Type[BaseModel]:
+    def _create_argument_model(self, mcp_tool: MCPTool) -> type[BaseModel]:
         """
         Create a Pydantic model for MCP tool arguments.
         
@@ -144,7 +142,7 @@ class MCPToolRegistry:
         required_fields = set(schema.get("required", []))
         
         # Convert JSON schema properties to Pydantic field definitions
-        field_definitions: Dict[str, Any] = {}
+        field_definitions: dict[str, Any] = {}
         
         for field_name, field_schema in properties.items():
             field_type = self._json_schema_to_python_type(field_schema)
@@ -157,13 +155,13 @@ class MCPToolRegistry:
                 )
             else:
                 field_definitions[field_name] = (
-                    Optional[field_type],
+                    field_type | None,
                     Field(default=None, description=field_description)
                 )
         
         return create_model(f"{mcp_tool.name}Args", **field_definitions)
 
-    def _json_schema_to_python_type(self, schema: Dict[str, Any]) -> Type[Any]:
+    def _json_schema_to_python_type(self, schema: dict[str, Any]) -> type[Any]:
         """Convert JSON schema type to Python type annotation."""
         schema_type = schema.get("type", "string")
         
@@ -172,13 +170,13 @@ class MCPToolRegistry:
             "integer": int,
             "number": float,
             "boolean": bool,
-            "array": List[Any],
-            "object": Dict[str, Any],
+            "array": list[Any],
+            "object": dict[str, Any],
         }
         
         return type_mapping.get(schema_type, str)
 
-    def _dict_to_server_config(self, config_dict: Dict[str, Any]) -> MCPServerConfig:
+    def _dict_to_server_config(self, config_dict: dict[str, Any]) -> MCPServerConfig:
         """Convert dictionary configuration to MCPServerConfig."""
         return MCPServerConfig(
             command=config_dict["command"],
@@ -191,11 +189,11 @@ class MCPToolRegistry:
         """Clean up MCP connections."""
         await self._pool.cleanup()
 
-    def get_registered_tools(self) -> List[str]:
+    def get_registered_tools(self) -> list[str]:
         """Get list of registered tool names."""
         return list(self._registered_tools.keys())
 
-    def get_tool_info(self, tool_name: str) -> Optional[MCPTool]:
+    def get_tool_info(self, tool_name: str) -> MCPTool | None:
         """Get information about a registered tool."""
         return self._registered_tools.get(tool_name)
 
@@ -204,7 +202,7 @@ class MCPToolRegistry:
 _tool_registry: MCPToolRegistry = MCPToolRegistry()
 
 
-async def register_mcp_tools(agent: Agent, mcp_servers: List[Dict[str, Any]]) -> None:
+async def register_mcp_tools(agent: Agent, mcp_servers: list[dict[str, Any]]) -> None:
     """
     Convenience function to register MCP tools with an agent.
     

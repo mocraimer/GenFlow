@@ -8,11 +8,11 @@ focusing on tool discovery and execution without reimplementing AI logic.
 import asyncio
 import json
 import logging
+import os
 import subprocess
-import uuid
-from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -28,15 +28,15 @@ class MCPTool:
     """Represents an MCP tool definition."""
     name: str
     description: str
-    input_schema: Dict[str, Any]
+    input_schema: dict[str, Any]
 
 
 @dataclass
 class MCPServerConfig:
     """Configuration for an MCP server connection."""
     command: str
-    args: Optional[List[str]] = None
-    env: Optional[Dict[str, str]] = None
+    args: list[str] | None = None
+    env: dict[str, str] | None = None
     transport: MCPTransportType = MCPTransportType.STDIO
     timeout: float = 30.0
 
@@ -66,8 +66,8 @@ class MCPClient:
 
     def __init__(self, config: MCPServerConfig):
         self.config = config
-        self._process: Optional[subprocess.Popen[str]] = None
-        self._tools: List[MCPTool] = []
+        self._process: subprocess.Popen[str] | None = None
+        self._tools: list[MCPTool] = []
         self._connected = False
         self._request_id = 0
 
@@ -141,7 +141,7 @@ class MCPClient:
 
         except Exception as e:
             await self.disconnect()
-            raise MCPConnectionError(f"Failed to connect to MCP server {self.config.command}: {e}")
+            raise MCPConnectionError(f"Failed to connect to MCP server {self.config.command}: {e}") from e
 
     async def disconnect(self) -> None:
         """Close the connection to the MCP server."""
@@ -159,7 +159,7 @@ class MCPClient:
         self._connected = False
         self._tools.clear()
 
-    async def list_tools(self) -> List[MCPTool]:
+    async def list_tools(self) -> list[MCPTool]:
         """Get available tools from the MCP server."""
         if not self._connected:
             await self.connect()
@@ -193,9 +193,9 @@ class MCPClient:
             return self._tools
 
         except Exception as e:
-            raise MCPProtocolError(f"Error listing MCP tools: {e}")
+            raise MCPProtocolError(f"Error listing MCP tools: {e}") from e
 
-    async def call_tool(self, name: str, arguments: Dict[str, Any]) -> Any:
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
         """Execute a tool on the MCP server."""
         if not self._connected:
             await self.connect()
@@ -237,9 +237,9 @@ class MCPClient:
         except Exception as e:
             if isinstance(e, MCPProtocolError):
                 raise
-            raise MCPProtocolError(f"Error calling MCP tool '{name}': {e}")
+            raise MCPProtocolError(f"Error calling MCP tool '{name}': {e}") from e
 
-    async def _send_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def _send_request(self, request: dict[str, Any]) -> dict[str, Any]:
         """Send a JSON-RPC request and wait for response."""
         if not self._process or not self._process.stdin:
             raise MCPConnectionError("MCP server process not available")
@@ -259,15 +259,15 @@ class MCPClient:
             if not response_line:
                 raise MCPProtocolError("Empty response from MCP server")
 
-            response: Dict[str, Any] = json.loads(response_line)
+            response: dict[str, Any] = json.loads(response_line)
             return response
 
         except asyncio.TimeoutError:
-            raise MCPProtocolError(f"MCP server request timeout ({self.config.timeout}s)")
+            raise MCPProtocolError(f"MCP server request timeout ({self.config.timeout}s)") from None
         except json.JSONDecodeError as e:
-            raise MCPProtocolError(f"Invalid JSON response from MCP server: {e}")
+            raise MCPProtocolError(f"Invalid JSON response from MCP server: {e}") from e
 
-    async def _send_notification(self, notification: Dict[str, Any]) -> None:
+    async def _send_notification(self, notification: dict[str, Any]) -> None:
         """Send a JSON-RPC notification (no response expected)."""
         if not self._process or not self._process.stdin:
             raise MCPConnectionError("MCP server process not available")
@@ -298,7 +298,3 @@ class MCPClient:
     async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Async context manager exit."""
         await self.disconnect()
-
-
-# Import os at module level
-import os

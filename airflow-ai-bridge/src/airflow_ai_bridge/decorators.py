@@ -7,8 +7,9 @@ and MCP servers, offering seamless tool registration and execution.
 
 import asyncio
 import logging
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+from collections.abc import Callable
 from functools import wraps
+from typing import Any, TypeVar
 
 from pydantic_ai import Agent
 
@@ -22,10 +23,10 @@ T = TypeVar('T', bound=Callable[..., Any])
 
 
 def mcp_agent(
-    model: Union[str, Any] = "gpt-4o",
+    model: str | Any = "gpt-4o",
     *,
     system_prompt: str = "",
-    mcp_servers: Optional[List[Dict[str, Any]]] = None,
+    mcp_servers: list[dict[str, Any]] | None = None,
     **kwargs: Any
 ) -> Callable[[T], T]:
     """
@@ -91,9 +92,9 @@ def mcp_agent(
 
 
 def mcp_llm(
-    model: Union[str, Any] = "gpt-4o",
+    model: str | Any = "gpt-4o",
     *,
-    mcp_servers: Optional[List[Dict[str, Any]]] = None,
+    mcp_servers: list[dict[str, Any]] | None = None,
     **kwargs: Any
 ) -> Callable[[T], T]:
     """
@@ -135,9 +136,9 @@ def mcp_llm(
 
 
 def mcp_llm_branch(
-    model: Union[str, Any] = "gpt-4o",
+    model: str | Any = "gpt-4o",
     *,
-    mcp_servers: Optional[List[Dict[str, Any]]] = None,
+    mcp_servers: list[dict[str, Any]] | None = None,
     **kwargs: Any
 ) -> Callable[[T], T]:
     """

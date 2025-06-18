@@ -6,10 +6,17 @@ Model Context Protocol (MCP) server integration, enabling AI agents
 in Airflow DAGs to interact with external tools and services.
 """
 
-from .decorators import mcp_agent, mcp_llm, mcp_llm_branch, agent, llm, llm_branch
-from .mcp import MCPClient, MCPServerConfig, MCPTool, MCPError, MCPConnectionError, MCPProtocolError
-from .tools import register_mcp_tools, cleanup_mcp_tools, get_tool_registry
-from .pool import get_mcp_client, cleanup_mcp_connections, get_connection_pool
+from .decorators import agent, llm, llm_branch, mcp_agent, mcp_llm, mcp_llm_branch
+from .mcp import (
+    MCPClient,
+    MCPConnectionError,
+    MCPError,
+    MCPProtocolError,
+    MCPServerConfig,
+    MCPTool,
+)
+from .pool import cleanup_mcp_connections, get_connection_pool, get_mcp_client
+from .tools import cleanup_mcp_tools, get_tool_registry, register_mcp_tools
 
 __version__ = "0.1.0"
 __author__ = "Airflow AI Bridge Contributors"

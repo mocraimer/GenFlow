@@ -5,7 +5,8 @@ This module handles different versions and import paths of airflow-ai-sdk.
 """
 
 import warnings
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 F = TypeVar('F', bound=Callable[..., Any])
 
@@ -20,7 +21,8 @@ class MockTask:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
-                UserWarning
+                UserWarning,
+                stacklevel=2
             )
             return func
         return decorator
@@ -32,7 +34,8 @@ class MockTask:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
-                UserWarning
+                UserWarning,
+                stacklevel=2
             )
             return func
         return decorator
@@ -44,7 +47,8 @@ class MockTask:
             warnings.warn(
                 "airflow-ai-sdk not available, using mock decorator. "
                 "Install airflow-ai-sdk for full functionality.",
-                UserWarning
+                UserWarning,
+                stacklevel=2
             )
             return func
         return decorator
@@ -76,7 +80,7 @@ except ImportError:
                             task = obj
                             break
                         elif hasattr(obj, 'task'):
-                            task = getattr(obj, 'task')
+                            task = obj.task
                             break
             except ImportError:
                 pass
