@@ -11,18 +11,23 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-try:
-    from pydantic_ai import Agent
-except ImportError:
-    # Mock pydantic_ai for testing
-    class Agent:
-        def __init__(self, model, system_prompt=""):
-            self.model = model
-            self.system_prompt = system_prompt
+# Always mock pydantic_ai.Agent to prevent real API calls
+class MockAgent:
+    def __init__(self, model, system_prompt=""):
+        self.model = model
+        self.system_prompt = system_prompt
 
-        def tool(self, func):
-            return func
+    def tool(self, func):
+        return func
 
+# Patch the module-level import
+import sys
+import types
+
+# Create a mock module for pydantic_ai
+mock_pydantic_ai = types.ModuleType('pydantic_ai')
+mock_pydantic_ai.Agent = MockAgent
+sys.modules['pydantic_ai'] = mock_pydantic_ai
 
 from airflow_ai_bridge.decorators import mcp_agent
 from airflow_ai_bridge.mcp import (
@@ -255,6 +260,7 @@ class TestMCPToolRegistry:
         ]
 
     @pytest.mark.asyncio
+    @patch('airflow_ai_bridge.tools.Agent', MockAgent)
     async def test_register_mcp_tools(
         self, registry, mock_agent, sample_mcp_servers, sample_tools
     ):
@@ -421,6 +427,7 @@ class TestMCPDecorators:
         """Sample MCP server configurations."""
         return [{"command": "mcp-server-test"}]
 
+    @patch('airflow_ai_bridge.decorators.Agent', MockAgent)
     def test_mcp_agent_decorator_basic(self, sample_mcp_servers):
         """Test basic mcp_agent decorator functionality."""
 
@@ -432,6 +439,7 @@ class TestMCPDecorators:
         assert hasattr(test_function, "_mcp_servers")
         assert test_function._mcp_servers == sample_mcp_servers
 
+    @patch('airflow_ai_bridge.decorators.Agent', MockAgent)
     def test_mcp_agent_without_mcp_servers(self):
         """Test mcp_agent decorator without MCP servers."""
 
@@ -442,6 +450,7 @@ class TestMCPDecorators:
         # Should work without MCP servers
         assert callable(test_function)
 
+    @patch('airflow_ai_bridge.decorators.Agent', MockAgent)
     def test_mcp_llm_decorator(self, sample_mcp_servers):
         """Test mcp_llm decorator."""
 
@@ -452,6 +461,7 @@ class TestMCPDecorators:
         assert callable(test_function)
 
     @pytest.mark.asyncio
+    @patch('airflow_ai_bridge.tools.Agent', MockAgent)
     async def test_register_mcp_tools_function(self, sample_mcp_servers):
         """Test standalone register_mcp_tools function."""
         mock_agent = MagicMock()
