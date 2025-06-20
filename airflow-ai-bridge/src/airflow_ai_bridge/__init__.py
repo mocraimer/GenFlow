@@ -18,6 +18,17 @@ from .mcp import (
 from .pool import cleanup_mcp_connections, get_connection_pool, get_mcp_client
 from .tools import cleanup_mcp_tools, get_tool_registry, register_mcp_tools
 
+# Optional imports for UI and CLI
+try:
+    from . import cli
+except ImportError:
+    cli = None
+
+try:
+    from . import ui
+except ImportError:
+    ui = None
+
 __version__ = "0.1.0"
 __author__ = "Airflow AI Bridge Contributors"
 
